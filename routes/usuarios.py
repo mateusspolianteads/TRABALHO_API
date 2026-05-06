@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from database import SessionLocal
 from schemas.usuario import UsuarioCreate
-from services.usuario_service import criar_usuario
+from services.usuario_service import criar_usuario, consultar_usuario
 
 router = APIRouter(
     prefix="/usuarios",
@@ -23,3 +23,11 @@ def cadastrar(usuario: UsuarioCreate):
             "email": novo_usuario.email
         }
     }
+
+@router.get("/consultar/{id}")
+def consultar_por_id(id: int):
+    db = SessionLocal()
+
+    usuario = consultar_usuario(db, id)
+
+    return usuario
