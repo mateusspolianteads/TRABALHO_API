@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Busão do Rolê</title>
+    <link rel="stylesheet" href="../static/css/home.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-box">
+                <img src="../static/img/logo_branca.png" alt="logo-busao-do-role" class="sidebar-logo" id="main-logo">
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group">
+                    <a href="javascript:void(0)" id="link-dashboard" class="nav-link active"
+                        onclick="trocarPagina('dashboard')">Dashboard</a>
+                    <a href="javascript:void(0)" id="link-clientes" class="nav-link"
+                        onclick="trocarPagina('clientes')">Clientes</a>
+                </div>
+
+                <div class="nav-footer">
+                    <a href="javascript:void(0)" id="link-config" class="nav-link"
+                        onclick="trocarPagina('config')">Configurações</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div id="content-dashboard" class="tab-content active">
+                <header>
+                    <h1>Painel de Vendas</h1>
+                    <div class="user-info">Olá, Admin 👋</div>
+                </header>
+
+                <section class="metrics">
+                    <div class="card">
+                        <h3>Total de Vendas</h3>
+                        <p class="value">R$ 12.450,00</p>
+                        <span class="trend positive">+15% este mês</span>
+                    </div>
+                    <div class="card">
+                        <h3>Ingressos Vendidos</h3>
+                        <p class="value">458</p>
+                        <span class="trend">85% da meta</span>
+                    </div>
+                    <div class="card">
+                        <h3>Eventos Ativos</h3>
+                        <p class="value">12</p>
+                    </div>
+                </section>
+
+                <section class="recent-sales">
+                    <h2>Últimas Transações</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Evento</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>João Silva</td>
+                                <td>Festa Universitária</td>
+                                <td>22/05/2026</td>
+                                <td><span class="status paid">Pago</span></td>
+                                <td>R$ 80,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+
+            <div id="content-clientes" class="tab-content">
+                <header>
+                    <h1>Clientes</h1>
+                    <div class="user-info">Gerenciamento de usuários</div>
+                </header>
+
+                <section class="recent-sales">
+                    <h2>Base de Clientes</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ricardo Santos</td>
+                                <td>ricardo@busao.com</td>
+                                <td><span class="status paid">Ativo</span></td>
+                                <td><button class="btn-view">Ver</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+
+            <div id="content-config" class="tab-content">
+                <header>
+                    <h1>Configurações</h1>
+                    <div class="user-info">Ajustes do sistema</div>
+                </header>
+
+                <section class="recent-sales">
+                    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3>Tema do Sistema</h3>
+                            <p style="color: var(--text-dim); margin-top: 5px;">Trocar entre modo claro e escuro</p>
+                        </div>
+                        <button id="theme-toggle" class="btn-theme">
+                            <i data-lucide="moon" id="theme-icon"></i>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="../static/javascript/home.js"></script>
+</body>
+</html>
