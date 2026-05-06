@@ -26,7 +26,7 @@ function aplicarTema(theme) {
 
     if (theme === 'light') {
         body.classList.add('light-mode');
-        logo.src = "../static/img/logo_preto.png";
+        logo.src = "../static/img/logo_preta.png";
         icon.setAttribute('data-lucide', 'sun');
     } else {
         body.classList.remove('light-mode');

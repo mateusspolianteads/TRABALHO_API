@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Busão do Rolê</title>
+    <link rel="stylesheet" href="../static/css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo-area">
+                <img src="../static/img/logo_branca.png" alt="Logo Busão do Rolê" class="login-logo">
+            </div>
+            
+            <h2>Bem-vindo de volta!</h2>
+            <p class="subtitle">Acesse sua conta para gerenciar os rolês.</p>
+
+            <form class="login-form">
+                <div class="input-group">
+                    <label for="usuario">Usuário</label>
+                    <div class="input-field">
+                        <i data-lucide="user"></i>
+                        <input type="text" id="usuario" name="usuario" placeholder="Digite seu usuário" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="senha">Senha</label>
+                    <div class="input-field">
+                        <i data-lucide="lock"></i>
+                        <input type="password" id="senha" name="senha" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="btn-login">Entrar no Rolê</button>
+            </form>
+
+            <div class="login-footer">
+                <p>Não tem uma conta? <a href="#">Cadastre-se</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <script src="../static/javascript/login.js"></script>
+</body>
+</html>
