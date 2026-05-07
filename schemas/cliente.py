@@ -15,7 +15,7 @@ class ClienteCreate(ClienteBase):
 class ClienteUpdate(BaseModel):
     nome: Optional[str] = None
     email: Optional[str] = None
-    telefoe: Optional[str] = None
+    telefone: Optional[str] = None
     
 class ClienteResponse(ClienteBase):
     id: int
