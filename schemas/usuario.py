@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 
 class UsuarioCreate(BaseModel):
     nome: str
     cpf_cnpj: str
-    email: str
+    email: EmailStr
     senha: str
 
 

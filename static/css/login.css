@@ -20,21 +20,21 @@ body {
     background-color: var(--bg-dark);
     background-image: radial-gradient(circle at 50% 0%, #3a0000 0%, transparent 50%);
     color: var(--text-main);
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
 }
 
 .login-container {
     width: 100%;
-    max-width: 420px;
-    padding: 20px;
+    max-width: 380px; /* Reduzido para ficar mais elegante */
 }
 
 .login-box {
     background: var(--card-bg);
-    padding: 40px;
+    padding: 25px 30px; /* Padding reduzido para compactar */
     border-radius: 24px;
     border: 1px solid var(--border);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
@@ -42,67 +42,74 @@ body {
     backdrop-filter: blur(10px);
 }
 
+/* --- EFEITO DE LOGO SOBREPOSTA --- */
 .logo-area {
-    margin-bottom: 30px;
+    margin-bottom: -20px; /* Puxa o título para cima */
+    position: relative;
+    z-index: 2;
 }
 
 .login-logo {
-    width: 240px;
+    width: 220px; /* Logo em destaque */
     height: auto;
-    transform: scale(1.1);
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.6)); /* Sombra para destacar do texto */
 }
 
 h2 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 800;
     margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+    padding-top: 10px; /* Espaço para a logo respirar sobre o texto */
 }
 
 .subtitle {
     color: var(--text-dim);
-    font-size: 0.9rem;
-    margin-bottom: 35px;
+    font-size: 0.85rem;
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 1;
 }
 
 .login-form { text-align: left; }
 
 .input-group {
-    margin-bottom: 25px;
+    margin-bottom: 18px; /* Espaçamento otimizado */
 }
 
 .input-group label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     color: var(--text-dim);
-    /* Alinha o texto do label com a caixa de input */
-    padding-left: 40px; 
+    padding-left: 38px; 
 }
 
 .input-field {
     display: flex;
     align-items: center;
-    gap: 15px; /* Espaço entre o ícone e a caixa */
+    gap: 12px;
 }
 
 .input-field i {
     color: var(--text-main);
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     flex-shrink: 0;
 }
 
 .input-field input {
     flex: 1;
-    /* TEXTO ENCOSTADO NA ESQUERDA: padding pequeno (12px) */
-    padding: 14px 12px; 
+    padding: 12px; 
     background: var(--glass);
     border: 1px solid var(--border);
     border-radius: 12px;
     color: white;
-    font-size: 1rem;
-    text-align: left; /* Garante alinhamento à esquerda */
+    font-size: 0.95rem;
     transition: all 0.3s ease;
 }
 
@@ -114,7 +121,7 @@ h2 {
 
 .forgot-password {
     text-align: right;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .forgot-password a {
@@ -125,13 +132,13 @@ h2 {
 }
 
 .forgot-password a:hover {
-    color: var(--primary) !important;
+    color: var(--primary);
     text-decoration: underline;   
 }
 
 .btn-login {
     width: 100%;
-    padding: 16px;
+    padding: 15px;
     background: linear-gradient(45deg, var(--primary-dark), var(--primary));
     border: none;
     border-radius: 12px;
@@ -140,6 +147,11 @@ h2 {
     font-size: 1rem;
     cursor: pointer;
     box-shadow: 0 10px 20px rgba(139, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.btn-login:active {
+    transform: scale(0.98);
 }
 
 .login-footer {

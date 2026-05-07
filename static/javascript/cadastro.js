@@ -1,33 +1,39 @@
-document.querySelector("form").addEventListener("submit", async (e) => {
-  e.preventDefault();
+document.addEventListener('DOMContentLoaded', () => {
+    const cadastroForm = document.querySelector('.login-form');
 
-  const dados = {
-    nome: document.getElementById("nome").value,
-    cpf_cnpj: document.getElementById("doc").value,
-    email: document.getElementById("email").value,
-    senha: document.getElementById("senha").value
-  };
+    if (cadastroForm) {
+        cadastroForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-  try {
-    const response = await fetch("http://127.0.0.1:8000/usuarios/cadastrar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(dados)
-    });
+            const dados = {
+                nome: document.getElementById("nome").value,
+                cpf_cnpj: document.getElementById("doc").value,
+                email: document.getElementById("email").value,
+                senha: document.getElementById("senha").value
+            };
 
-    const result = await response.json();
+            try {
+                const response = await fetch("http://127.0.0.1:8000/usuarios/cadastrar", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(dados)
+                });
 
-    if (response.ok) {
-      alert("Usuário cadastrado com sucesso!");
-      console.log(result);
-    } else {
-      alert(result.detail || "Erro ao cadastrar");
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert("Usuário cadastrado com sucesso!");
+                    window.location.href = "home.html"; 
+                } else {
+                    alert(result.detail || "Erro ao cadastrar");
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro de conexão com a API");
+            }
+        });
     }
-
-  } catch (error) {
-    console.error(error);
-    alert("Erro de conexão com a API");
-  }
 });

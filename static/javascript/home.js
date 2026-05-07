@@ -1,4 +1,3 @@
-// Inicializa ícones
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -6,14 +5,61 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function trocarPagina(id) {
-    // Esconde conteúdos
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    // Remove active dos links
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 
-    // Ativa os novos
-    document.getElementById('content-' + id).classList.add('active');
-    document.getElementById('link-' + id).classList.add('active');
+    const tab = document.getElementById('content-' + id);
+    const link = document.getElementById('link-' + id);
+
+    if (tab) tab.classList.add('active');
+    if (link) link.classList.add('active');
+
+    if (id === "clientes") {
+        carregarClientes();
+    }
+}
+
+async function carregarClientes() {
+    try {
+        const response = await fetch("http://localhost:8000/clientes/listar");
+
+        if (!response.ok) {
+            throw new Error("Erro na API");
+        }
+
+        const clientes = await response.json();
+
+        const tabela = document.querySelector("#content-clientes tbody");
+        if (!tabela) return;
+
+        tabela.innerHTML = "";
+
+        clientes.forEach(cliente => {
+            // Formata a data para o padrão brasileiro (DD/MM/AAAA)
+            const dataNasc = cliente.data_nascimento 
+                ? new Date(cliente.data_nascimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) 
+                : '---';
+
+            tabela.innerHTML += `
+                <tr>
+                    <td><strong>${cliente.nome}</strong></td>
+                    <td>${cliente.cpf || '---'}</td>
+                    <td>${dataNasc}</td>
+                    <td>${cliente.email}</td>
+                    <td>${cliente.telefone || '---'}</td>
+                    <td><span class="status paid">Ativo</span></td>
+                    <td><button class="btn-view">Ver</button></td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+        console.error("Erro ao carregar clientes:", error);
+        const tabela = document.querySelector("#content-clientes tbody");
+        if (tabela) {
+            tabela.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Erro ao carregar dados da API.</td></tr>";
+        }
+    }
 }
 
 // Lógica de Tema
@@ -26,12 +72,12 @@ function aplicarTema(theme) {
 
     if (theme === 'light') {
         body.classList.add('light-mode');
-        logo.src = "../static/img/logo_preta.png";
-        icon.setAttribute('data-lucide', 'sun');
+        if(logo) logo.src = "../static/img/logo_preta.png";
+        if(icon) icon.setAttribute('data-lucide', 'sun');
     } else {
         body.classList.remove('light-mode');
-        logo.src = "../static/img/logo_branca.png";
-        icon.setAttribute('data-lucide', 'moon');
+        if(logo) logo.src = "../static/img/logo_branca.png";
+        if(icon) icon.setAttribute('data-lucide', 'moon');
     }
     lucide.createIcons();
 }
