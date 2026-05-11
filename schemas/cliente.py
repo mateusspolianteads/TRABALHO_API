@@ -4,7 +4,7 @@ from typing import Optional
 
 class ClienteBase(BaseModel):
     nome: str
-    data_nascimento: date
+    data_nascimento: Optional[date] = None
     cpf: str
     email: EmailStr
     telefone: str

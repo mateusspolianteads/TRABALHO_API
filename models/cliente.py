@@ -6,7 +6,7 @@ class Cliente(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String, nullable=False)
-    data_nascimento = Column(Date, nullable=False)
+    data_nascimento = Column(Date, nullable=True)
     cpf = Column(String, unique=True, nullable=False)
     email = Column(String, nullable=False)
     telefone = Column(String, nullable=False)
