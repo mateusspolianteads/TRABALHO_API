@@ -165,7 +165,7 @@ td {
 td:first-child { border-radius: 15px 0 0 15px; }
 td:last-child { border-radius: 0 15px 15px 0; }
 
-.status.active { 
+.status.active, .status.paid { 
     background: rgba(0, 255, 136, 0.15); 
     color: #00ff88; 
     padding: 6px 12px; 
@@ -173,9 +173,6 @@ td:last-child { border-radius: 0 15px 15px 0; }
     font-weight: 700; 
     font-size: 0.75rem;
 }
-
-.btn-view { background: var(--primary); border: none; color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-.btn-view:hover { background: var(--primary-dark); }
 
 .btn-theme {
     background: var(--primary);

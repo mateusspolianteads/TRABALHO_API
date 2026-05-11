@@ -127,11 +127,6 @@ async function carregarClientes() {
                     <td>${cliente.email}</td>
                     <td>${cliente.telefone || '---'}</td>
                     <td><span class="status paid">Ativo</span></td>
-                    <td>
-                        <button class="btn-view">
-                            Ver
-                        </button>
-                    </td>
                 </tr>
             `;
         });
