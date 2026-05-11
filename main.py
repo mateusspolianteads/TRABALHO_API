@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from database import Base, engine
-from routes import usuarios, clientes
+from routes import usuarios, clientes, eventos
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(
+    title="Busão do Rolê API",
+    version="1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,8 +20,17 @@ Base.metadata.create_all(bind=engine)
 
 app.include_router(usuarios.router)
 app.include_router(clientes.router)
-
+app.include_router(eventos.router)
 
 @app.get("/")
 def home():
     return {"mensagem": "API Busão do Rolê funcionando"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True
+    )
