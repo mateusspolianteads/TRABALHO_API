@@ -1,49 +1,80 @@
-from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from models.evento import Evento
 
-from schemas.evento import EventoCreate, EventoUpdate
 
+def criar_evento(db, dados):
 
-def criar_evento(db: Session, evento: EventoCreate):
-    db_evento = Evento(**evento.model_dump())
-    db.add(db_evento)
+    novo_evento = Evento(
+        nome=dados.nome,
+        descricao=dados.descricao,
+        data=dados.data,
+        local=dados.local,
+        valor=dados.valor
+    )
+
+    db.add(novo_evento)
     db.commit()
-    db.refresh(db_evento)
-    return db_evento
+    db.refresh(novo_evento)
+
+    return novo_evento
 
 
-def listar_eventos(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Evento).offset(skip).limit(limit).all()
+def listar_eventos(db):
+    return db.query(Evento).all()
 
 
-def buscar_evento_por_id(db: Session, evento_id: int):
-    return db.query(Evento).filter(Evento.id == evento_id).first()
+def buscar_evento_por_id(db, evento_id):
+    evento = db.query(Evento).filter(
+        Evento.id == evento_id
+    ).first()
+
+    if not evento:
+        raise HTTPException(
+            status_code=404,
+            detail="Evento não encontrado"
+        )
+
+    return evento
 
 
-def atualizar_evento(db: Session, evento_id: int, evento_update: EventoUpdate):
-    db_evento = db.query(Evento).filter(Evento.id == evento_id).first()
+def atualizar_evento(db, evento_id, dados):
+    evento = db.query(Evento).filter(
+        Evento.id == evento_id
+    ).first()
 
-    if not db_evento:
+    if not evento:
         return None
 
-    update_data = evento_update.model_dump(exclude_unset=True)
+    if dados.nome is not None:
+        evento.nome = dados.nome
 
-    for key, value in update_data.items():
-        setattr(db_evento, key, value)
+    if dados.descricao is not None:
+        evento.descricao = dados.descricao
+
+    if dados.data is not None:
+        evento.data = dados.data
+
+    if dados.local is not None:
+        evento.local = dados.local
+
+    if dados.valor is not None:
+        evento.valor = dados.valor
 
     db.commit()
-    db.refresh(db_evento)
+    db.refresh(evento)
 
-    return db_evento
+    return evento
 
 
-def deletar_evento(db: Session, evento_id: int):
-    db_evento = db.query(Evento).filter(Evento.id == evento_id).first()
+def deletar_evento(db, evento_id):
+    evento = db.query(Evento).filter(
+        Evento.id == evento_id
+    ).first()
 
-    if not db_evento:
+    if not evento:
         return False
 
-    db.delete(db_evento)
+    db.delete(evento)
     db.commit()
 
     return True

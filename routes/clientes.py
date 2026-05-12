@@ -1,12 +1,13 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from database import SessionLocal
 import pandas as pd
 from io import BytesIO
 
 from models.cliente import Cliente
-from schemas.cliente import ClienteCreate
+from schemas.cliente import ClienteUpdate
 from services.cliente_service import (
-    listar_clientes
+    listar_clientes,
+    atualizar_cliente
 )
 
 router = APIRouter(
@@ -38,6 +39,25 @@ def listar():
     db = SessionLocal()
     try:
         return listar_clientes(db)
+    finally:
+        db.close()
+
+@router.put("/atualizar/{id}")
+def atualizar(id: int, cliente: ClienteUpdate):
+    db = SessionLocal()
+
+    try:
+        cliente_atualizado = atualizar_cliente(
+            db,
+            id,
+            cliente
+        )
+
+        return {
+            "mensagem": "Cliente atualizado com sucesso",
+            "cliente": cliente_atualizado
+        }
+
     finally:
         db.close()
         

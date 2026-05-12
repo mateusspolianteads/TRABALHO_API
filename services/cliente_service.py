@@ -43,3 +43,28 @@ def get_customers_by_name(db, cliente_nome):
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
 
     return cliente
+
+def atualizar_cliente(db, cliente_id, dados):
+    cliente = db.query(Cliente).filter(
+        Cliente.id == cliente_id
+    ).first()
+
+    if not cliente:
+        raise HTTPException(
+            status_code=404,
+            detail="Cliente não encontrado"
+        )
+
+    if dados.nome is not None:
+        cliente.nome = dados.nome
+
+    if dados.email is not None:
+        cliente.email = dados.email
+
+    if dados.telefone is not None:
+        cliente.telefone = dados.telefone
+
+    db.commit()
+    db.refresh(cliente)
+
+    return cliente
