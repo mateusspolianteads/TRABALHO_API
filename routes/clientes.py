@@ -6,7 +6,6 @@ from io import BytesIO
 from models.cliente import Cliente
 from schemas.cliente import ClienteCreate
 from services.cliente_service import (
-    criar_cliente,
     listar_clientes
 )
 
@@ -15,7 +14,7 @@ router = APIRouter(
     tags=["Clientes"]
 )
 
-
+""" 
 @router.post("/cadastrar")
 def cadastrar(cliente: ClienteCreate):
     db = SessionLocal()
@@ -32,7 +31,7 @@ def cadastrar(cliente: ClienteCreate):
         }
     finally:
         db.close()
-
+ """
 
 @router.get("/listar")
 def listar():
@@ -41,7 +40,7 @@ def listar():
         return listar_clientes(db)
     finally:
         db.close()
-
+        
 
 @router.post("/importar-planilha")
 async def importar_planilha(file: UploadFile = File(...)):
@@ -51,109 +50,44 @@ async def importar_planilha(file: UploadFile = File(...)):
     try:
         conteudo = await file.read()
 
-        # Detecta tipo de arquivo
         if file.filename.endswith(".xlsx"):
-            df = pd.read_excel(BytesIO(conteudo), engine="openpyxl")
+            df = pd.read_excel(BytesIO(conteudo))
 
         elif file.filename.endswith(".xls"):
-            df = pd.read_excel(BytesIO(conteudo), engine="xlrd")
+            df = pd.read_excel(BytesIO(conteudo))
 
         else:
-            return {"erro": "Formato inválido. Use .xls ou .xlsx"}
+            return {"erro": "Formato inválido"}
 
-        # Normaliza colunas
-        df.columns = (
-            df.columns
-            .str.strip()
-            .str.lower()
-            .str.replace(" ", "_")
-        )
+        df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
 
         clientes_importados = []
-        erros = []
 
-        # CPFs já existentes no banco
-        cpfs_existentes = {
-            c.cpf for c in db.query(Cliente).all()
-        }
+        for _, row in df.iterrows():
 
-        cpfs_planilha = set()
-        novos_clientes = []
+            cliente = Cliente(
+                nome=str(row["nome"]),
+                cpf=str(row["cpf"]),
+                email=str(row.get("email", "")),
+                telefone=str(row.get("telefone_do_comprador", "")),
+                data_nascimento=pd.to_datetime(
+                    row.get("data_de_nascimento")
+                ).date() if pd.notna(row.get("data_de_nascimento")) else None
+            )
 
-        for index, row in df.iterrows():
-            try:
-                nome = str(row.get("nome", "")).strip()
-                cpf = str(row.get("cpf", "")).strip()
-                email = str(row.get("email", "")).strip()
-                telefone = str(row.get("telefone_do_comprador", "")).strip()
+            db.add(cliente)
 
-                data_raw = row.get("data_de_nascimento")
-
-                # trata data vazia corretamente
-                data_nascimento = None
-                if pd.notna(data_raw):
-                    try:
-                        data_nascimento = pd.to_datetime(data_raw).date()
-                    except:
-                        data_nascimento = None
-
-                # validações
-                if not nome or not cpf:
-                    erros.append({
-                        "linha": index + 2,
-                        "erro": "Nome ou CPF vazio"
-                    })
-                    continue
-
-                if cpf in cpfs_existentes:
-                    erros.append({
-                        "linha": index + 2,
-                        "erro": f"CPF {cpf} já cadastrado"
-                    })
-                    continue
-
-                if cpf in cpfs_planilha:
-                    erros.append({
-                        "linha": index + 2,
-                        "erro": f"CPF {cpf} duplicado na planilha"
-                    })
-                    continue
-
-                cpfs_planilha.add(cpf)
-
-                novo_cliente = Cliente(
-                    nome=nome,
-                    cpf=cpf,
-                    email=email,
-                    telefone=telefone,
-                    data_nascimento=data_nascimento
-                )
-
-                novos_clientes.append(novo_cliente)
-
-            except Exception as e:
-                erros.append({
-                    "linha": index + 2,
-                    "erro": str(e)
-                })
-
-        # salva em lote
-        if novos_clientes:
-            db.add_all(novos_clientes)
-            db.commit()
-
-        for c in novos_clientes:
             clientes_importados.append({
-                "nome": c.nome,
-                "cpf": c.cpf
+                "nome": cliente.nome,
+                "cpf": cliente.cpf
             })
+
+        db.commit()
 
         return {
             "mensagem": "Importação finalizada",
             "total_importados": len(clientes_importados),
-            "total_erros": len(erros),
-            "clientes_importados": clientes_importados,
-            "erros": erros
+            "clientes_importados": clientes_importados
         }
 
     finally:
