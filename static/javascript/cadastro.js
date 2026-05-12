@@ -22,10 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const result = await response.json();
+                console.log(result);
 
                 if (response.ok) {
                     alert("Usuário cadastrado com sucesso!");
-                    window.location.href = "home.html"; 
+                    window.location.href = "login.html"; 
                 } else {
                     alert(result.detail || "Erro ao cadastrar");
                 }
