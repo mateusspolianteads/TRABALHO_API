@@ -91,7 +91,7 @@
                         <h1>Clientes</h1>
                         <div class="user-info">Gerenciamento de usuários da base</div>
                     </div>
-                    
+
                     <div class="header-actions">
                         <button class="btn-import" onclick="document.getElementById('file-input').click()">
                             <i data-lucide="file-spreadsheet"></i>
@@ -119,6 +119,21 @@
                             <tbody id="tabela-clientes-body">
                             </tbody>
                         </table>
+                        <div class="pagination-container">
+                            <button class="pagination-btn" id="prev-page" title="Página Anterior">
+                                <i data-lucide="chevron-left"></i>
+                            </button>
+
+                            <div class="pagination-info">
+                                <span id="current-page" class="current-page">1</span>
+                                <span class="separator">de</span>
+                                <span id="total-pages" class="total-pages">10</span>
+                            </div>
+
+                            <button class="pagination-btn" id="next-page" title="Próxima Página">
+                                <i data-lucide="chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -154,20 +169,20 @@
                     <i data-lucide="x"></i>
                 </button>
             </div>
-            
+
             <form id="form-editar-cliente">
                 <input type="hidden" id="edit-cliente-id">
-                
+
                 <div class="form-group">
                     <label for="edit-nome">Nome Completo</label>
                     <input type="text" id="edit-nome" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="edit-email">Email</label>
                     <input type="email" id="edit-email" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="edit-telefone">Telefone</label>
                     <input type="text" id="edit-telefone">
