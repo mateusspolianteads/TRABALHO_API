@@ -6,10 +6,10 @@ def criar_evento(db, dados):
 
     novo_evento = Evento(
         nome=dados.nome,
-        descricao=dados.descricao,
-        data=dados.data,
+        categoria=dados.categoria,
+        data_evento=dados.data_evento,
         local=dados.local,
-        valor=dados.valor
+        valor_passagem=dados.valor_passagem,
     )
 
     db.add(novo_evento)
@@ -24,23 +24,16 @@ def listar_eventos(db):
 
 
 def buscar_evento_por_id(db, evento_id):
-    evento = db.query(Evento).filter(
-        Evento.id == evento_id
-    ).first()
+    evento = db.query(Evento).filter(Evento.id == evento_id).first()
 
     if not evento:
-        raise HTTPException(
-            status_code=404,
-            detail="Evento não encontrado"
-        )
+        raise HTTPException(status_code=404, detail="Evento não encontrado")
 
     return evento
 
 
 def atualizar_evento(db, evento_id, dados):
-    evento = db.query(Evento).filter(
-        Evento.id == evento_id
-    ).first()
+    evento = db.query(Evento).filter(Evento.id == evento_id).first()
 
     if not evento:
         return None
@@ -48,17 +41,17 @@ def atualizar_evento(db, evento_id, dados):
     if dados.nome is not None:
         evento.nome = dados.nome
 
-    if dados.descricao is not None:
-        evento.descricao = dados.descricao
+    if dados.id_categoria is not None:
+        evento.id_categoria = dados.id_categoria
 
-    if dados.data is not None:
-        evento.data = dados.data
+    if dados.data_evento is not None:
+        evento.data_evento = dados.data_evento
 
     if dados.local is not None:
         evento.local = dados.local
 
-    if dados.valor is not None:
-        evento.valor = dados.valor
+    if dados.valor_passagem is not None:
+        evento.valor_passagem = dados.valor_passagem
 
     db.commit()
     db.refresh(evento)
@@ -67,9 +60,7 @@ def atualizar_evento(db, evento_id, dados):
 
 
 def deletar_evento(db, evento_id):
-    evento = db.query(Evento).filter(
-        Evento.id == evento_id
-    ).first()
+    evento = db.query(Evento).filter(Evento.id == evento_id).first()
 
     if not evento:
         return False

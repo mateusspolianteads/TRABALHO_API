@@ -3,6 +3,12 @@ from database import Base, engine
 from routes import usuarios, clientes, eventos
 from fastapi.middleware.cors import CORSMiddleware
 
+from models.usuario import Usuario
+from models.cliente import Cliente
+from models.evento import Evento
+from models.pedido import Pedido
+from models.categoria import categoria
+
 app = FastAPI(
     title="Busão do Rolê API",
     version="1.0.0"
