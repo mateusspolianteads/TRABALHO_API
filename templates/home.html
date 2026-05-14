@@ -23,6 +23,9 @@
                         onclick="trocarPagina('dashboard')">Dashboard</a>
                     <a href="javascript:void(0)" id="link-clientes" class="nav-link"
                         onclick="trocarPagina('clientes')">Clientes</a>
+                    <!-- Novo item Pedidos -->
+                    <a href="javascript:void(0)" id="link-pedidos" class="nav-link"
+                        onclick="trocarPagina('pedidos')">Pedidos</a>
                 </div>
 
                 <div class="nav-footer">
@@ -33,6 +36,7 @@
         </aside>
 
         <main class="main-content">
+            <!-- CONTEÚDO DASHBOARD -->
             <div id="content-dashboard" class="tab-content active">
                 <header>
                     <div>
@@ -85,6 +89,7 @@
                 </section>
             </div>
 
+            <!-- CONTEÚDO CLIENTES -->
             <div id="content-clientes" class="tab-content">
                 <header>
                     <div>
@@ -138,6 +143,64 @@
                 </section>
             </div>
 
+            <!-- CONTEÚDO PEDIDOS -->
+            <!-- CONTEÚDO PEDIDOS -->
+            <div id="content-pedidos" class="tab-content">
+                <header>
+                    <div>
+                        <h1>Pedidos</h1>
+                        <div class="user-info">Gerenciamento de vendas e ingressos</div>
+                    </div>
+
+                    <!-- Botão de Importar Adicionado aqui -->
+                    <div class="header-actions">
+                        <button class="btn-import" onclick="document.getElementById('file-input-pedidos').click()">
+                            <i data-lucide="file-spreadsheet"></i>
+                            Importar Planilha
+                        </button>
+                        <input type="file" id="file-input-pedidos" accept=".xlsx, .xls, .csv" style="display: none;">
+                    </div>
+                </header>
+
+                <section class="recent-sales">
+                    <h2>Lista de Pedidos</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente ID</th>
+                                    <th>Evento ID</th>
+                                    <th>Data Venda</th>
+                                    <th>Status</th>
+                                    <th>Valor</th>
+                                    <th style="text-align: center;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-pedidos-body">
+                                <!-- Preenchido via carregarPedidos() -->
+                            </tbody>
+                        </table>
+                        <div class="pagination-container">
+                            <button class="pagination-btn" id="prev-page-pedidos" title="Página Anterior">
+                                <i data-lucide="chevron-left"></i>
+                            </button>
+
+                            <div class="pagination-info">
+                                <span id="current-page-pedidos" class="current-page">1</span>
+                                <span class="separator">de</span>
+                                <span id="total-pages-pedidos" class="total-pages">1</span>
+                            </div>
+
+                            <button class="pagination-btn" id="next-page-pedidos" title="Próxima Página">
+                                <i data-lucide="chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- CONTEÚDO CONFIGURAÇÕES -->
             <div id="content-config" class="tab-content">
                 <header>
                     <div>
@@ -161,6 +224,7 @@
         </main>
     </div>
 
+    <!-- MODAL EDITAR CLIENTE -->
     <div id="modal-editar-cliente" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -190,7 +254,7 @@
 
                 <div class="modal-actions">
                     <button type="button" class="btn-cancel" onclick="fecharModalEditar()">Cancelar</button>
-                    <button type="submit" class="btn-save" onclick="carregarClientes()">Salvar Alterações</button>
+                    <button type="submit" class="btn-save">Salvar Alterações</button>
                 </div>
             </form>
         </div>

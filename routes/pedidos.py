@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, UploadFile, File
 from database import SessionLocal
-from schemas.pedido import PedidoCreate
-from services.pedido_service import criar_pedido, consultar_pedido
-from pydantic import BaseModel
+import pandas as pd
+from io import BytesIO
+
 from models.pedido import Pedido
 
 router = APIRouter(
@@ -10,45 +10,65 @@ router = APIRouter(
     tags=["Pedidos"]
 )
 
-@router.post("/cadastrar")
-def cadastrar(pedido: PedidoCreate):
+@router.get("/listar")
+def listar():
     db = SessionLocal()
-    try:  
-        novo_pedido = criar_pedido(db, pedido)
-
-        return {
-            "mensagem": "Pedido criado com sucesso",
-            "pedido": {
-                "id": novo_pedido.id,
-                "cliente_id": novo_pedido.cliente_id,
-                "evento_id": novo_pedido.evento_id
-            }
-        }
+    try:
+        return db.query(Pedido).all()
     finally:
         db.close()
 
-@router.get("/consultar/{id}")
-def consultar_por_id(id: int):
+@router.post("/importar-planilha")
+async def importar_planilha(file: UploadFile = File(...)):
     db = SessionLocal()
+
     try:
-        pedido = consultar_pedido(db, id)
+        conteudo = await file.read()
+
+        if file.filename.endswith(".xlsx"):
+            df = pd.read_excel(BytesIO(conteudo))
+
+        elif file.filename.endswith(".xls"):
+            df = pd.read_excel(BytesIO(conteudo))
+
+        else:
+            return {"erro": "Formato inválido"}
+
+        df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+
+        pedidos_importados = []
+
+        for _, row in df.iterrows():
+
+            pedido = Pedido(
+                cliente_id=int(row["cliente_id"]),
+                evento_id=int(row["evento_id"]),
+                data_venda=row.get("data_venda"),
+                status_pedido=str(row.get("status_pedido", "")),
+                status_ingresso=str(row.get("status_ingresso", "")),
+                lote=row.get("lote"),
+                valor_lote=row.get("valor_lote"),
+                categoria_preco=row.get("categoria_preco"),
+                canal_venda=row.get("canal_venda"),
+                metodo_pagamento=row.get("metodo_pagamento"),
+                transferido=bool(row.get("transferido", False)),
+                aprovado=bool(row.get("aprovado", False))
+            )
+
+            db.add(pedido)
+
+            pedidos_importados.append({
+                "cliente_id": pedido.cliente_id,
+                "evento_id": pedido.evento_id
+            })
+
+        db.commit()
 
         return {
-            "pedido": {
-                "id": pedido.id,
-                "cliente_id": pedido.cliente_id,
-                "evento_id": pedido.evento_id,
-                "data_venda": pedido.data_venda,
-                "status_pedido": pedido.status_pedido,
-                "status_ingresso": pedido.status_ingresso,
-                "lote": pedido.lote,
-                "valor_lote": pedido.valor_lote,
-                "categoria_preco": pedido.categoria_preco,
-                "canal_venda": pedido.canal_venda,
-                "metodo_pagamento": pedido.metodo_pagamento,
-                "transferido": pedido.transferido,
-                "aprovado": pedido.aprovado
-            }
+            "mensagem": "Importação de pedidos finalizada",
+            "total_importados": len(pedidos_importados),
+            "pedidos_importados": pedidos_importados
         }
+
     finally:
         db.close()
