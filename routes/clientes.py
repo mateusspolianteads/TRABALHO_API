@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File
 from database import SessionLocal
 import pandas as pd
 from io import BytesIO
@@ -15,35 +15,20 @@ router = APIRouter(
     tags=["Clientes"]
 )
 
-""" 
-@router.post("/cadastrar")
-def cadastrar(cliente: ClienteCreate):
-    db = SessionLocal()
-    try:
-        novo_cliente = criar_cliente(db, cliente)
-
-        return {
-            "mensagem": "Cliente cadastrado com sucesso",
-            "cliente": {
-                "id": novo_cliente.id,
-                "nome": novo_cliente.nome,
-                "email": novo_cliente.email
-            }
-        }
-    finally:
-        db.close()
- """
-
 @router.get("/listar")
 def listar():
     db = SessionLocal()
+
     try:
         return listar_clientes(db)
+
     finally:
         db.close()
 
+
 @router.put("/atualizar/{id}")
 def atualizar(id: int, cliente: ClienteUpdate):
+
     db = SessionLocal()
 
     try:
@@ -60,52 +45,86 @@ def atualizar(id: int, cliente: ClienteUpdate):
 
     finally:
         db.close()
-        
 
-@router.post("/importar-planilha",
-             status_code=201)
+
+@router.post(
+    "/importar-planilha",
+    status_code=201
+)
 async def importar_planilha(file: UploadFile = File(...)):
 
     db = SessionLocal()
 
     try:
+
         conteudo = await file.read()
 
         if file.filename.endswith(".xlsx"):
+
             df = pd.read_excel(BytesIO(conteudo))
 
         elif file.filename.endswith(".xls"):
+
             df = pd.read_excel(BytesIO(conteudo))
 
         else:
-            return {"erro": "Formato inválido"}
 
-        df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+            return {
+                "erro": "Formato inválido"
+            }
+
+        df.columns = (
+            df.columns
+            .str.strip()
+            .str.lower()
+            .str.replace(" ", "_")
+        )
 
         clientes_importados = []
+        clientes_duplicados = []
+
+        # pega todos cpfs do banco uma vez só
+        cpfs_existentes = set(
+            cpf[0]
+            for cpf in db.query(Cliente.cpf).all()
+        )
 
         for _, row in df.iterrows():
 
-            cliente = Cliente(
-                nome=str(row["nome"]),
-                cpf=str(row["cpf"]),
-                email=str(row.get("email", "")),
-                telefone=str(row.get("telefone_do_comprador", "")),
-                data_nascimento=pd.to_datetime(
-                    row.get("data_de_nascimento")
-                ).date() if pd.notna(row.get("data_de_nascimento")) else None
-            )
+            cpf = str(row["cpf"]).strip()
 
-            cpf_existente = (
-                db.query(Cliente)
-                .filter(Cliente.cpf == cpf)
-                .first()
-            )
+            # verifica duplicado
+            if cpf in cpfs_existentes:
 
-            if cpf_existente:
+                clientes_duplicados.append({
+                    "nome": str(row["nome"]),
+                    "cpf": cpf
+                })
+
                 continue
 
+            cliente = Cliente(
+                nome=str(row["nome"]),
+                cpf=cpf,
+                email=str(row.get("email", "")),
+                telefone=str(
+                    row.get("telefone_do_comprador", "")
+                ),
+                data_nascimento=(
+                    pd.to_datetime(
+                        row.get("data_de_nascimento")
+                    ).date()
+                    if pd.notna(
+                        row.get("data_de_nascimento")
+                    )
+                    else None
+                )
+            )
+
             db.add(cliente)
+
+            # adiciona no set pra não repetir
+            cpfs_existentes.add(cpf)
 
             clientes_importados.append({
                 "nome": cliente.nome,
@@ -115,9 +134,20 @@ async def importar_planilha(file: UploadFile = File(...)):
         db.commit()
 
         return {
+
             "mensagem": "Importação finalizada",
-            "total_importados": len(clientes_importados),
-            "clientes_importados": clientes_importados
+
+            "total_importados":
+                len(clientes_importados),
+
+            "total_duplicados":
+                len(clientes_duplicados),
+
+            "clientes_importados":
+                clientes_importados,
+
+            "clientes_duplicados":
+                clientes_duplicados
         }
 
     finally:
