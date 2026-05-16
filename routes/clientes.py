@@ -95,6 +95,15 @@ async def importar_planilha(file: UploadFile = File(...)):
                 ).date() if pd.notna(row.get("data_de_nascimento")) else None
             )
 
+            cpf_existente = (
+                db.query(Cliente)
+                .filter(Cliente.cpf == cpf)
+                .first()
+            )
+
+            if cpf_existente:
+                continue
+
             db.add(cliente)
 
             clientes_importados.append({
