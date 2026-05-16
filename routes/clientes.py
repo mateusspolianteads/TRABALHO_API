@@ -62,7 +62,8 @@ def atualizar(id: int, cliente: ClienteUpdate):
         db.close()
         
 
-@router.post("/importar-planilha")
+@router.post("/importar-planilha",
+             status_code=201)
 async def importar_planilha(file: UploadFile = File(...)):
 
     db = SessionLocal()
