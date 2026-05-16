@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String
 from database import Base
 
-class categoria(Base):
+class Categoria(Base):
     __tablename__ = "categorias"
 
     id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String, nullable=False)
+    nome = Column(String, nullable=False, unique=True)

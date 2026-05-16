@@ -6,7 +6,7 @@ def criar_evento(db, dados):
 
     novo_evento = Evento(
         nome=dados.nome,
-        categoria=dados.categoria,
+        categoria_id=dados.categoria_id,
         data_evento=dados.data_evento,
         local=dados.local,
         valor_passagem=dados.valor_passagem,
@@ -41,8 +41,8 @@ def atualizar_evento(db, evento_id, dados):
     if dados.nome is not None:
         evento.nome = dados.nome
 
-    if dados.id_categoria is not None:
-        evento.id_categoria = dados.id_categoria
+    if dados.categoria_id is not None:
+        evento.categoria_id = dados.categoria_id
 
     if dados.data_evento is not None:
         evento.data_evento = dados.data_evento

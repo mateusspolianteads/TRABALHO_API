@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from database import Base, engine
-from routes import usuarios, clientes, eventos, pedidos
+from routes import usuarios, clientes, eventos, pedidos, categorias
 from fastapi.middleware.cors import CORSMiddleware
 
 from models.usuario import Usuario
 from models.cliente import Cliente
 from models.evento import Evento
 from models.pedido import Pedido
-from models.categoria import categoria
+from models.categoria import Categoria
 
 app = FastAPI(
     title="Busão do Rolê API",
@@ -28,6 +28,7 @@ app.include_router(usuarios.router)
 app.include_router(clientes.router)
 app.include_router(eventos.router)
 app.include_router(pedidos.router)
+app.include_router(categorias.router)
 
 @app.get("/")
 def home():

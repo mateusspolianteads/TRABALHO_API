@@ -1,15 +1,14 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 
 class EventoBase(BaseModel):
     nome: str
-    categoria: int
+    categoria_id: int
     data_evento: datetime
     local: str
     valor_passagem: float
-    capacidade: int
 
 
 class EventoCreate(EventoBase):
@@ -18,11 +17,10 @@ class EventoCreate(EventoBase):
 
 class EventoUpdate(BaseModel):
     nome: Optional[str] = None
-    id_categoria: Optional[int] = None
+    categoria_id: Optional[int] = None
     data_evento: Optional[datetime] = None
     local: Optional[str] = None
     valor_passagem: Optional[float] = None
-    capacidade: Optional[int] = None
 
 
 class Evento(EventoBase):

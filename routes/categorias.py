@@ -1,7 +1,13 @@
 from fastapi import APIRouter
 from database import SessionLocal
-from schemas.categoria import CategoriaCreate
-from services.categoria_service import criar_categoria, consultar_categoria
+from schemas.categoria import CategoriaCreate, CategoriaUpdate
+from services.categoria_service import (
+    criar_categoria,
+    listar_categorias,
+    consultar_categoria,
+    atualizar_categoria,
+    deletar_categoria
+)
 
 router = APIRouter(
     prefix="/categorias",
@@ -11,6 +17,7 @@ router = APIRouter(
 @router.post("/cadastrar")
 def cadastrar(categoria: CategoriaCreate):
     db = SessionLocal()
+
     try:
         nova_categoria = criar_categoria(db, categoria)
 
@@ -21,19 +28,73 @@ def cadastrar(categoria: CategoriaCreate):
                 "nome": nova_categoria.nome
             }
         }
+
     finally:
         db.close()
 
-def consultar_por_id(id: int):
+
+@router.get("/listar")
+def listar():
     db = SessionLocal()
+
+    try:
+        categorias = listar_categorias(db)
+
+        return categorias
+
+    finally:
+        db.close()
+
+
+@router.get("/consultar/{id}")
+def consultar(id: int):
+    db = SessionLocal()
+
     try:
         categoria = consultar_categoria(db, id)
 
         return {
+            "id": categoria.id,
+            "nome": categoria.nome
+        }
+
+    finally:
+        db.close()
+
+
+@router.put("/atualizar/{id}")
+def atualizar(id: int, dados: CategoriaUpdate):
+    db = SessionLocal()
+
+    try:
+        categoria_atualizada = atualizar_categoria(
+            db,
+            id,
+            dados
+        )
+
+        return {
+            "mensagem": "Categoria atualizada com sucesso",
             "categoria": {
-                "id": categoria.id,
-                "nome": categoria.nome
+                "id": categoria_atualizada.id,
+                "nome": categoria_atualizada.nome
             }
         }
+
+    finally:
+        db.close()
+
+
+@router.delete("/deletar/{id}")
+def deletar(id: int):
+    db = SessionLocal()
+
+    try:
+        deletar_categoria(db, id)
+
+        return {
+            "mensagem": "Categoria deletada com sucesso"
+        }
+
     finally:
         db.close()
