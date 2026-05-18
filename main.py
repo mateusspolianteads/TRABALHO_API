@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from database import Base, engine
-from routes import usuarios, clientes, eventos, pedidos, categorias
+from routes import usuarios, clientes, eventos, pedidos, categorias, upload
 from fastapi.middleware.cors import CORSMiddleware
 
 from models.usuario import Usuario
@@ -29,6 +29,7 @@ app.include_router(clientes.router)
 app.include_router(eventos.router)
 app.include_router(pedidos.router)
 app.include_router(categorias.router)
+app.include_router(upload.router)
 
 @app.get("/")
 def home():

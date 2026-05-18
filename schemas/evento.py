@@ -22,7 +22,7 @@ class EventoUpdate(BaseModel):
     data_evento: Optional[datetime] = None
     local: Optional[str] = None
     valor_passagem: Optional[float] = None
-    imagem = Optional[str] = None
+    imagem: Optional[str] = None
 
 
 class Evento(EventoBase):
