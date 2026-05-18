@@ -16,7 +16,6 @@ def criar_pedido(db, dados):
         status_ingresso=dados.status_ingresso,
         lote=dados.lote,
         valor_lote=dados.valor_lote,
-        categoria_preco=dados.categoria_preco,
         canal_venda=dados.canal_venda,
         metodo_pagamento=dados.metodo_pagamento,
         transferido=dados.transferido,

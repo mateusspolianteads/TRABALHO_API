@@ -11,7 +11,6 @@ class PedidoBase(BaseModel):
     status_ingresso: str
     lote: str
     valor_lote: float
-    categoria_preco: Optional[str] = None
     canal_venda: str
     metodo_pagamento: str
     transferido: Optional[str] = None

@@ -48,7 +48,6 @@ async def importar_planilha(file: UploadFile = File(...)):
                 status_ingresso=str(row.get("status_ingresso", "")),
                 lote=row.get("lote"),
                 valor_lote=row.get("valor_lote"),
-                categoria_preco=row.get("categoria_preco"),
                 canal_venda=row.get("canal_venda"),
                 metodo_pagamento=row.get("metodo_pagamento"),
                 transferido=bool(row.get("transferido", False)),

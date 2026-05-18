@@ -15,7 +15,6 @@ class Pedido(Base):
 
     lote = Column(String, nullable=False)
     valor_lote = Column(Float, nullable=False)
-    categoria_preco = Column(String)
 
     canal_venda = Column(String, nullable=False)
     metodo_pagamento = Column(String, nullable=False)
