@@ -793,14 +793,14 @@ td:last-child {
   cursor: pointer;
   font-size: 0.85rem;
 }
-
 #upload-status {
-  position: absolute;
-  right: 16px;
+  display: block;     
+  width: 100%;       
+  margin-top: 10px;   
+  text-align: center; 
   font-size: 0.8rem;
-  color: #00ff88;
+  color: #00ff88;  
 }
-
 .modal-actions-custom {
   display: flex;
   flex-direction: column;

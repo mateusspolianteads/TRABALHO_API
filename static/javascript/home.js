@@ -248,10 +248,7 @@ async function carregarEventos() {
       const dataFormatada = new Date(evento.data_evento).toLocaleDateString('pt-BR') + ' ' + 
                             new Date(evento.data_evento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
 
-      // Modificado aqui: Se houver imagem cadastrada, cria a tag <img>, senão deixa vazio
       const tagImagem = evento.imagem ? `<img src="${evento.imagem}" alt="${evento.nome}">` : '';
-      
-      // Modificado aqui: Se não tiver imagem, adiciona a classe css 'no-image'
       const classeNoImage = evento.imagem ? '' : 'no-image';
 
       const objCategoria = categorias.find(c => c.id === evento.categoria_id);
@@ -301,10 +298,20 @@ async function fazerUploadImagem(input) {
   const file = input.files[0];
   if (!file) return;
 
+  // Seleciona o botão de submit do formulário para controle de estado
+  const formEvento = document.getElementById('form-evento');
+  const btnSalvar = formEvento ? formEvento.querySelector('button[type="submit"]') : null;
+
   const statusLabel = document.getElementById('upload-status');
   if (statusLabel) {
     statusLabel.style.color = 'var(--text-dim)';
     statusLabel.innerText = "Enviando para o Supabase...";
+  }
+
+  // Desabilita o botão de salvar enquanto o upload ocorre
+  if (btnSalvar) {
+    btnSalvar.disabled = true;
+    btnSalvar.style.opacity = '0.5';
   }
 
   const formData = new FormData();
@@ -322,6 +329,13 @@ async function fazerUploadImagem(input) {
     }
   } catch (error) {
     console.error("Erro no upload:", error);
+    if (statusLabel) { statusLabel.style.color = '#ff4d4d'; statusLabel.innerText = "Erro ao carregar arquivo."; }
+  } finally {
+    // Libera o botão independente de ter dado sucesso ou erro
+    if (btnSalvar) {
+      btnSalvar.disabled = false;
+      btnSalvar.style.opacity = '1';
+    }
   }
 }
 
@@ -342,6 +356,14 @@ async function prepararEdicaoEvento(id) {
     document.getElementById('evento-valor').value = evento.valor_passagem;
     document.getElementById('evento-imagem-url').value = evento.imagem || '';
     
+    // Garante que o botão comece habilitado ao editar
+    const formEvento = document.getElementById('form-evento');
+    const btnSalvar = formEvento ? formEvento.querySelector('button[type="submit"]') : null;
+    if (btnSalvar) {
+      btnSalvar.disabled = false;
+      btnSalvar.style.opacity = '1';
+    }
+
     document.getElementById('modal-evento').style.display = 'flex';
   } catch (error) {
     console.error(error);
@@ -359,10 +381,19 @@ async function deletarEvento(id) {
 }
 
 async function abrirModalEvento() {
-  document.getElementById('form-evento').reset();
+  const form = document.getElementById('form-evento');
+  if (form) form.reset();
+  
   document.getElementById('evento-id').value = '';
   document.getElementById('evento-imagem-url').value = '';
   if(document.getElementById('upload-status')) document.getElementById('upload-status').innerText = '';
+  
+  // Garante o estado resetado do botão na abertura para cadastro limpo
+  const btnSalvar = form ? form.querySelector('button[type="submit"]') : null;
+  if (btnSalvar) {
+    btnSalvar.disabled = false;
+    btnSalvar.style.opacity = '1';
+  }
   
   await carregarCategorias();
 
