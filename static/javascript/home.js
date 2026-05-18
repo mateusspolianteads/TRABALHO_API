@@ -1,6 +1,5 @@
 const API_URL = "http://localhost:8000";
 
-// Estados Globais de Paginação e Dados
 let clientes = [];
 let paginaAtualClientes = 1;
 const clientesPorPagina = 10;
@@ -9,31 +8,24 @@ let pedidos = [];
 let paginaAtualPedidos = 1;
 const pedidosPorPagina = 10;
 
-// Estado global para armazenar as categorias vindas da API FastAPI
 let categorias = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   lucide.createIcons();
 
-  // Configuração Inicial de Tema
   const savedTheme = localStorage.getItem("theme") || "dark";
   aplicarTema(savedTheme);
 
-  // --- OUVINTES DE EVENTOS (LISTENERS) ---
-
-  // Importação de Planilha - Clientes
   const fileInputClientes = document.getElementById("file-input");
   if (fileInputClientes) {
     fileInputClientes.addEventListener("change", (e) => importarPlanilha(e, "/clientes/importar-planilha", carregarClientes));
   }
 
-  // Importação de Planilha - Pedidos
   const fileInputPedidos = document.getElementById("file-input-pedidos");
   if (fileInputPedidos) {
     fileInputPedidos.addEventListener("change", (e) => importarPlanilha(e, "/pedidos/importar-planilha", carregarPedidos));
   }
 
-  // Formulário - Editar Cliente
   const formEditarCliente = document.getElementById("form-editar-cliente");
   if (formEditarCliente) {
     formEditarCliente.addEventListener("submit", async (e) => {
@@ -53,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (!response.ok) throw new Error();
-        alert("Cliente atualizado com sucesso!");
+        alert("Cliente updated successfully!");
         fecharModalEditar();
         carregarClientes();
       } catch (error) {
@@ -63,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Formulário - Cadastrar/Editar Evento
   const formEvento = document.getElementById("form-evento");
   if (formEvento) {
     formEvento.addEventListener("submit", async (e) => {
@@ -101,21 +92,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- CONFIGURAÇÃO DOS BOTÕES DE PAGINAÇÃO ---
-  
-  // Paginação Clientes
   const prevBtn = document.getElementById("prev-page");
   const nextBtn = document.getElementById("next-page");
   if (prevBtn) prevBtn.addEventListener("click", () => { if (paginaAtualClientes > 1) { paginaAtualClientes--; mostrarPaginaClientes(); } });
   if (nextBtn) nextBtn.addEventListener("click", () => { if (paginaAtualClientes < Math.ceil(clientes.length / clientesPorPagina)) { paginaAtualClientes++; mostrarPaginaClientes(); } });
 
-  // Paginação Pedidos
   const prevBtnPed = document.getElementById("prev-page-pedidos");
   const nextBtnPed = document.getElementById("next-page-pedidos");
   if (prevBtnPed) prevBtnPed.addEventListener("click", () => { if (paginaAtualPedidos > 1) { paginaAtualPedidos--; mostrarPaginaPedidos(); } });
   if (nextBtnPed) nextBtnPed.addEventListener("click", () => { if (paginaAtualPedidos < Math.ceil(pedidos.length / pedidosPorPagina)) { paginaAtualPedidos++; mostrarPaginaPedidos(); } });
 
-  // Botão de Alternância de Tema
   const themeBtn = document.getElementById("theme-toggle");
   if (themeBtn) {
     themeBtn.addEventListener("click", () => {
@@ -125,11 +111,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Carga inicial padrão
   carregarClientes();
 });
 
-// --- FUNÇÃO AUXILIAR: IMPORTAÇÃO DE PLANILHAS ---
 async function importarPlanilha(event, endpoint, callbackSucesso) {
   const arquivo = event.target.files[0];
   if (!arquivo) return;
@@ -156,9 +140,6 @@ async function importarPlanilha(event, endpoint, callbackSucesso) {
   }
 }
 
-// ==========================================
-//           MÓDULO: CLIENTES
-// ==========================================
 async function carregarClientes() {
   try {
     const response = await fetch(`${API_URL}/clientes/listar`);
@@ -227,9 +208,6 @@ function fecharModalEditar() {
   document.getElementById("modal-editar-cliente").style.display = "none";
 }
 
-// ==========================================
-//      MÓDULO: CATEGORIAS (INTEGRADO À API)
-// ==========================================
 async function carregarCategorias() {
   try {
     const response = await fetch(`${API_URL}/categorias/listar`);
@@ -239,14 +217,12 @@ async function carregarCategorias() {
     const selectCategoria = document.getElementById("evento-categoria");
     if (!selectCategoria) return;
 
-    // Limpa opções antigas mantendo apenas o placeholder visual
     selectCategoria.innerHTML = `
       <option value="" disabled selected hidden>
         Selecione uma categoria
       </option>
     `;
 
-    // Popula o select dinamicamente com o retorno do FastAPI
     categorias.forEach(cat => {
       selectCategoria.innerHTML += `<option value="${cat.id}">${cat.nome}</option>`;
     });
@@ -255,12 +231,8 @@ async function carregarCategorias() {
   }
 }
 
-// ==========================================
-//           MÓDULO: EVENTOS
-// ==========================================
 async function carregarEventos() {
   try {
-    // Garante que temos o mapeamento de ID -> Nome na memória
     if (categorias.length === 0) {
       await carregarCategorias();
     }
@@ -268,41 +240,55 @@ async function carregarEventos() {
     const response = await fetch(`${API_URL}/eventos/listar`);
     if (!response.ok) return;
     const eventos = await response.json();
-    const tbody = document.getElementById('tabela-eventos-body');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+    const gridContainer = document.getElementById('tabela-eventos-body');
+    if (!gridContainer) return;
+    gridContainer.innerHTML = '';
 
     eventos.forEach(evento => {
       const dataFormatada = new Date(evento.data_evento).toLocaleDateString('pt-BR') + ' ' + 
                             new Date(evento.data_evento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
 
-      const tagImagem = evento.imagem 
-          ? `<img src="${evento.imagem}" alt="Promo" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">`
-          : `<div style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: var(--text-dim)">N/A</div>`;
+      // Modificado aqui: Se houver imagem cadastrada, cria a tag <img>, senão deixa vazio
+      const tagImagem = evento.imagem ? `<img src="${evento.imagem}" alt="${evento.nome}">` : '';
+      
+      // Modificado aqui: Se não tiver imagem, adiciona a classe css 'no-image'
+      const classeNoImage = evento.imagem ? '' : 'no-image';
 
-      // Encontra o nome da categoria usando o id de correlação do Evento
       const objCategoria = categorias.find(c => c.id === evento.categoria_id);
       const nomeCategoria = objCategoria ? objCategoria.nome : `ID: ${evento.categoria_id}`;
 
-      tbody.innerHTML += `
-          <tr>
-              <td>${tagImagem}</td>
-              <td><strong>${evento.nome}</strong></td>
-              <td><span class="status paid" style="background: rgba(255,255,255,0.05); color: var(--text-main);">${nomeCategoria}</span></td>
-              <td>${dataFormatada}</td>
-              <td>${evento.local}</td>
-              <td>R$ ${evento.valor_passagem.toFixed(2).replace('.', ',')}</td>
-              <td style="text-align: center;">
-                  <div class="actions-wrapper">
-                      <button class="btn-edit-table" onclick="prepararEdicaoEvento(${evento.id})" title="Editar">
-                          <i data-lucide="pencil" style="width: 16px;"></i>
-                      </button>
-                      <button class="btn-edit-table btn-delete-table" onclick="deletarEvento(${evento.id})" title="Excluir">
-                          <i data-lucide="trash-2" style="width: 16px;"></i>
-                      </button>
-                  </div>
-              </td>
-          </tr>
+      gridContainer.innerHTML += `
+        <div class="event-card">
+          <div class="event-card-banner ${classeNoImage}">
+            ${tagImagem}
+            <span class="event-card-category">${nomeCategoria}</span>
+            <div class="event-card-actions">
+              <button class="btn-edit-table" onclick="prepararEdicaoEvento(${evento.id})" title="Editar">
+                <i data-lucide="pencil" style="width: 16px;"></i>
+              </button>
+              <button class="btn-edit-table btn-delete-table" onclick="deletarEvento(${evento.id})" title="Excluir">
+                <i data-lucide="trash-2" style="width: 16px;"></i>
+              </button>
+            </div>
+          </div>
+          <div class="event-card-body">
+            <h3 class="event-card-title">${evento.nome}</h3>
+            <div class="event-card-info-item">
+              <i data-lucide="calendar"></i>
+              <span>${dataFormatada}</span>
+            </div>
+            <div class="event-card-info-item">
+              <i data-lucide="map-pin"></i>
+              <span>${evento.local}</span>
+            </div>
+            <div class="event-card-footer">
+              <div>
+                <div class="event-card-price-label">Passagem</div>
+                <div class="event-card-price-value">R$ ${evento.valor_passagem.toFixed(2).replace('.', ',')}</div>
+              </div>
+            </div>
+          </div>
+        </div>
       `;
     });
     lucide.createIcons();
@@ -341,7 +327,6 @@ async function fazerUploadImagem(input) {
 
 async function prepararEdicaoEvento(id) {
   try {
-    // Sincroniza o select antes de definir qual opção está ativa
     await carregarCategorias();
 
     const response = await fetch(`${API_URL}/eventos/consultar/${id}`);
@@ -379,7 +364,6 @@ async function abrirModalEvento() {
   document.getElementById('evento-imagem-url').value = '';
   if(document.getElementById('upload-status')) document.getElementById('upload-status').innerText = '';
   
-  // Atualiza as opções vinda do banco de dados ao abrir a criação
   await carregarCategorias();
 
   document.getElementById('modal-evento-titulo').innerText = "Cadastrar Evento";
@@ -388,9 +372,6 @@ async function abrirModalEvento() {
 
 function fecharModalEvento() { document.getElementById('modal-evento').style.display = 'none'; }
 
-// ==========================================
-//           MÓDULO: PEDIDOS
-// ==========================================
 async function carregarPedidos() {
   try {
     const response = await fetch(`${API_URL}/pedidos/listar`);
@@ -421,7 +402,7 @@ function mostrarPaginaPedidos() {
         <td>ID: ${pedido.evento_id}</td>
         <td>${dataVenda}</td>
         <td><span class="status paid">${pedido.status || "Pago"}</span></td>
-        <td>R$ ${parseFloat(pedido.valor).toFixed(2).replace('.', ',')}</td>
+        <td>R$ ${parseFloat(pedido.valor_lote).toFixed(2).replace('.', ',')}</td>
         <td style="text-align: center;">
            <button class="btn-edit-table" onclick="alert('Pedido ID: ' + ${pedido.id})" title="Visualizar">
              <i data-lucide="eye" style="width: 16px;"></i>
@@ -440,9 +421,6 @@ function mostrarPaginaPedidos() {
   lucide.createIcons();
 }
 
-// ==========================================
-//    MÓDULO: NAVEGAÇÃO E GLOBAL (TEMAS)
-// ==========================================
 function trocarPagina(id) {
   document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
   document.querySelectorAll(".nav-link").forEach((l) => l.classList.remove("active"));
@@ -453,7 +431,6 @@ function trocarPagina(id) {
   if (tab) tab.classList.add("active");
   if (link) link.classList.add("active");
 
-  // Gatilhos sob demanda
   if (id === "clientes") carregarClientes();
   if (id === "pedidos") carregarPedidos();
   if (id === "eventos") carregarEventos();

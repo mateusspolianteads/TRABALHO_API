@@ -47,7 +47,6 @@
               onclick="trocarPagina('pedidos')"
               >Pedidos</a
             >
-            <!-- Item de Eventos Integrado -->
             <a
               href="javascript:void(0)"
               id="link-eventos"
@@ -70,7 +69,6 @@
       </aside>
 
       <main class="main-content">
-        <!-- CONTEÚDO DASHBOARD -->
         <div id="content-dashboard" class="tab-content active">
           <header>
             <div>
@@ -123,7 +121,6 @@
           </section>
         </div>
 
-        <!-- CONTEÚDO CLIENTES -->
         <div id="content-clientes" class="tab-content">
           <header>
             <div>
@@ -192,7 +189,6 @@
           </section>
         </div>
 
-        <!-- CONTEÚDO PEDIDOS -->
         <div id="content-pedidos" class="tab-content">
           <header>
             <div>
@@ -261,7 +257,6 @@
           </section>
         </div>
 
-        <!-- CONTEÚDO EVENTOS -->
         <div id="content-eventos" class="tab-content">
           <header>
             <div>
@@ -280,29 +275,14 @@
           </header>
 
           <section class="recent-sales">
-            <h2>Lista de Eventos</h2>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Imagem</th>
-                    <th>Nome</th>
-                    <th>Categoria ID</th>
-                    <th>Data Evento</th>
-                    <th>Local</th>
-                    <th>Valor Passagem</th>
-                    <th style="text-align: center">Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="tabela-eventos-body">
-                  <!-- Preenchido via API dinamicamente -->
-                </tbody>
-              </table>
-            </div>
+            <h2 style="text-align: center; margin-bottom: 25px">
+              Lista de Eventos
+            </h2>
+
+            <div class="events-grid" id="tabela-eventos-body"></div>
           </section>
         </div>
 
-        <!-- CONTEÚDO CONFIGURAÇÕES -->
         <div id="content-config" class="tab-content">
           <header>
             <div>
@@ -335,7 +315,6 @@
       </main>
     </div>
 
-    <!-- MODAL EDITAR CLIENTE -->
     <div id="modal-editar-cliente" class="modal-overlay" style="display: none">
       <div class="modal-content">
         <div class="modal-header">
@@ -377,7 +356,6 @@
       </div>
     </div>
 
-    <!-- MODAL CADASTRAR / EDITAR EVENTO -->
     <div id="modal-evento" class="modal-overlay" style="display: none">
       <div class="modal-content">
         <div class="modal-header">
@@ -404,17 +382,12 @@
             />
           </div>
 
-          <div class="form-group-custom select-highlight">
-            <label class="floating-label">Categoria</label>
+          <div class="form-group-custom">
             <i data-lucide="tag" class="input-icon"></i>
             <select id="evento-categoria" required>
               <option value="" disabled selected hidden>
                 Selecione uma categoria
               </option>
-              <option value="1">Sertanejo</option>
-              <option value="2">Universitário</option>
-              <option value="3">Festa / Rave</option>
-              <option value="4">Show / Rock</option>
             </select>
           </div>
 
