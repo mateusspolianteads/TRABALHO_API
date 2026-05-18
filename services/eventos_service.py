@@ -10,6 +10,7 @@ def criar_evento(db, dados):
         data_evento=dados.data_evento,
         local=dados.local,
         valor_passagem=dados.valor_passagem,
+        imagem=dados.imagem
     )
 
     db.add(novo_evento)
@@ -52,6 +53,9 @@ def atualizar_evento(db, evento_id, dados):
 
     if dados.valor_passagem is not None:
         evento.valor_passagem = dados.valor_passagem
+
+    if dados.imagem is not None:
+        evento.imagem = dados.imagem
 
     db.commit()
     db.refresh(evento)

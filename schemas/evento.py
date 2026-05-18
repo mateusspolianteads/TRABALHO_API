@@ -9,6 +9,7 @@ class EventoBase(BaseModel):
     data_evento: datetime
     local: str
     valor_passagem: float
+    imagem: Optional[str] = None
 
 
 class EventoCreate(EventoBase):
@@ -21,6 +22,7 @@ class EventoUpdate(BaseModel):
     data_evento: Optional[datetime] = None
     local: Optional[str] = None
     valor_passagem: Optional[float] = None
+    imagem = Optional[str] = None
 
 
 class Evento(EventoBase):

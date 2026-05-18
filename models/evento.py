@@ -15,3 +15,5 @@ class Evento(Base):
     local = Column(String, nullable=False)
 
     valor_passagem = Column(Float, nullable=False)
+
+    imagem = Column(String, nullable=True)
