@@ -1,55 +1,44 @@
+const API_URL = "http://localhost:8000";
+
+// Estados Globais de Paginação e Dados
+let clientes = [];
+let paginaAtualClientes = 1;
+const clientesPorPagina = 10;
+
+let pedidos = [];
+let paginaAtualPedidos = 1;
+const pedidosPorPagina = 10;
+
+// Estado global para armazenar as categorias vindas da API FastAPI
+let categorias = [];
+
 document.addEventListener("DOMContentLoaded", () => {
   lucide.createIcons();
 
+  // Configuração Inicial de Tema
   const savedTheme = localStorage.getItem("theme") || "dark";
   aplicarTema(savedTheme);
 
-  const fileInput = document.getElementById("file-input");
+  // --- OUVINTES DE EVENTOS (LISTENERS) ---
 
-  if (fileInput) {
-    fileInput.addEventListener("change", async (event) => {
-      const arquivo = event.target.files[0];
-      if (!arquivo) return;
-
-      const formData = new FormData();
-      formData.append("file", arquivo);
-
-      try {
-        alert("Importando planilha...");
-
-        const response = await fetch(
-          "http://localhost:8000/clientes/importar-planilha",
-          {
-            method: "POST",
-            body: formData,
-          },
-        );
-
-        if (!response.ok) throw new Error("Erro ao importar planilha");
-
-        const resultado = await response.json();
-
-        alert(
-          `Importação finalizada!\nImportados: ${resultado.total_importados}`,
-        );
-
-        carregarClientes();
-        fileInput.value = "";
-      } catch (error) {
-        console.error("Erro:", error);
-        alert("Erro ao importar planilha.");
-      }
-    });
+  // Importação de Planilha - Clientes
+  const fileInputClientes = document.getElementById("file-input");
+  if (fileInputClientes) {
+    fileInputClientes.addEventListener("change", (e) => importarPlanilha(e, "/clientes/importar-planilha", carregarClientes));
   }
 
-  const formEditar = document.getElementById("form-editar-cliente");
+  // Importação de Planilha - Pedidos
+  const fileInputPedidos = document.getElementById("file-input-pedidos");
+  if (fileInputPedidos) {
+    fileInputPedidos.addEventListener("change", (e) => importarPlanilha(e, "/pedidos/importar-planilha", carregarPedidos));
+  }
 
-  if (formEditar) {
-    formEditar.addEventListener("submit", async (e) => {
+  // Formulário - Editar Cliente
+  const formEditarCliente = document.getElementById("form-editar-cliente");
+  if (formEditarCliente) {
+    formEditarCliente.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const id = document.getElementById("edit-cliente-id").value;
-
       const dados = {
         nome: document.getElementById("edit-nome").value,
         email: document.getElementById("edit-email").value,
@@ -57,19 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        const response = await fetch(
-          `http://localhost:8000/clientes/atualizar/${id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(dados),
-          },
-        );
+        const response = await fetch(`${API_URL}/clientes/atualizar/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
 
-        if (!response.ok) throw new Error("Erro ao atualizar");
-
+        if (!response.ok) throw new Error();
         alert("Cliente atualizado com sucesso!");
         fecharModalEditar();
         carregarClientes();
@@ -80,65 +63,130 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Formulário - Cadastrar/Editar Evento
+  const formEvento = document.getElementById("form-evento");
+  if (formEvento) {
+    formEvento.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("evento-id").value;
+      const data_input = document.getElementById("evento-data").value;
+
+      const dadosEvento = {
+        nome: document.getElementById("evento-nome").value,
+        categoria_id: parseInt(document.getElementById("evento-categoria").value),
+        data_evento: new Date(data_input).toISOString(),
+        local: document.getElementById("evento-local").value,
+        valor_passagem: parseFloat(document.getElementById("evento-valor").value),
+        imagem: document.getElementById("evento-imagem-url").value || null
+      };
+
+      try {
+        const url = id ? `${API_URL}/eventos/atualizar/${id}` : `${API_URL}/eventos/cadastrar`;
+        const method = id ? "PUT" : "POST";
+
+        const response = await fetch(url, {
+          method: method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dadosEvento)
+        });
+
+        if (!response.ok) throw new Error();
+        alert(id ? "Evento atualizado!" : "Evento cadastrado!");
+        fecharModalEvento();
+        carregarEventos();
+      } catch (error) {
+        console.error("Erro ao salvar evento:", error);
+        alert("Erro ao salvar o evento.");
+      }
+    });
+  }
+
+  // --- CONFIGURAÇÃO DOS BOTÕES DE PAGINAÇÃO ---
+  
+  // Paginação Clientes
+  const prevBtn = document.getElementById("prev-page");
+  const nextBtn = document.getElementById("next-page");
+  if (prevBtn) prevBtn.addEventListener("click", () => { if (paginaAtualClientes > 1) { paginaAtualClientes--; mostrarPaginaClientes(); } });
+  if (nextBtn) nextBtn.addEventListener("click", () => { if (paginaAtualClientes < Math.ceil(clientes.length / clientesPorPagina)) { paginaAtualClientes++; mostrarPaginaClientes(); } });
+
+  // Paginação Pedidos
+  const prevBtnPed = document.getElementById("prev-page-pedidos");
+  const nextBtnPed = document.getElementById("next-page-pedidos");
+  if (prevBtnPed) prevBtnPed.addEventListener("click", () => { if (paginaAtualPedidos > 1) { paginaAtualPedidos--; mostrarPaginaPedidos(); } });
+  if (nextBtnPed) nextBtnPed.addEventListener("click", () => { if (paginaAtualPedidos < Math.ceil(pedidos.length / pedidosPorPagina)) { paginaAtualPedidos++; mostrarPaginaPedidos(); } });
+
+  // Botão de Alternância de Tema
+  const themeBtn = document.getElementById("theme-toggle");
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+      const novoTema = document.body.classList.contains("light-mode") ? "dark" : "light";
+      localStorage.setItem("theme", novoTema);
+      aplicarTema(novoTema);
+    });
+  }
+
+  // Carga inicial padrão
   carregarClientes();
 });
 
-let clientes = [];
-let paginaAtual = 1;
-const clientesPorPagina = 10;
+// --- FUNÇÃO AUXILIAR: IMPORTAÇÃO DE PLANILHAS ---
+async function importarPlanilha(event, endpoint, callbackSucesso) {
+  const arquivo = event.target.files[0];
+  if (!arquivo) return;
 
-const currentPageSpan = document.getElementById("current-page");
-const totalPagesSpan = document.getElementById("total-pages");
-const prevBtn = document.getElementById("prev-page");
-const nextBtn = document.getElementById("next-page");
+  const formData = new FormData();
+  formData.append("file", arquivo);
 
-async function carregarClientes() {
   try {
-    const response = await fetch("http://localhost:8000/clientes/listar");
+    alert("Importando planilha...");
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: "POST",
+      body: formData,
+    });
 
-    if (!response.ok) throw new Error("Erro na API");
-
-    clientes = await response.json();
-
-    clientes.sort((a, b) =>
-      a.nome.localeCompare(b.nome, "pt-BR", {
-        sensitivity: "base",
-      }),
-    );
-
-    paginaAtual = 1;
-    mostrarPagina();
+    if (!response.ok) throw new Error();
+    const resultado = await response.json();
+    alert(`Importação finalizada!\nRegistros afetados: ${resultado.total_importados || resultado.length}`);
+    
+    callbackSucesso();
+    event.target.value = "";
   } catch (error) {
-    console.error("Erro:", error);
-
-    const tabela = document.getElementById("tabela-clientes-body");
-
-    if (tabela) {
-      tabela.innerHTML =
-        "<tr><td colspan='7' style='text-align:center;'>Erro ao carregar dados.</td></tr>";
-    }
+    console.error("Erro na importação:", error);
+    alert("Erro ao importar planilha.");
   }
 }
 
-function mostrarPagina() {
+// ==========================================
+//           MÓDULO: CLIENTES
+// ==========================================
+async function carregarClientes() {
+  try {
+    const response = await fetch(`${API_URL}/clientes/listar`);
+    if (!response.ok) throw new Error();
+    clientes = await response.json();
+    clientes.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" }));
+    paginaAtualClientes = 1;
+    mostrarPaginaClientes();
+  } catch (error) {
+    console.error("Erro:", error);
+    const tabela = document.getElementById("tabela-clientes-body");
+    if (tabela) tabela.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Erro ao carregar dados.</td></tr>";
+  }
+}
+
+function mostrarPaginaClientes() {
   const tabela = document.getElementById("tabela-clientes-body");
-
   if (!tabela) return;
-
   tabela.innerHTML = "";
 
-  const inicio = (paginaAtual - 1) * clientesPorPagina;
+  const inicio = (paginaAtualClientes - 1) * clientesPorPagina;
   const fim = inicio + clientesPorPagina;
-
   const clientesPagina = clientes.slice(inicio, fim);
 
   clientesPagina.forEach((cliente) => {
     const dataNasc = cliente.data_nascimento
-      ? new Date(cliente.data_nascimento).toLocaleDateString("pt-BR", {
-          timeZone: "UTC",
-        })
+      ? new Date(cliente.data_nascimento).toLocaleDateString("pt-BR", { timeZone: "UTC" })
       : "---";
-
     const clienteJson = JSON.stringify(cliente).replace(/"/g, "&quot;");
 
     tabela.innerHTML += `
@@ -159,55 +207,245 @@ function mostrarPagina() {
   });
 
   const totalPaginas = Math.ceil(clientes.length / clientesPorPagina) || 1;
-
-  currentPageSpan.textContent = paginaAtual;
-  totalPagesSpan.textContent = totalPaginas;
-
-  prevBtn.disabled = paginaAtual === 1;
-  nextBtn.disabled = paginaAtual === totalPaginas;
+  if(document.getElementById("current-page")) document.getElementById("current-page").textContent = paginaAtualClientes;
+  if(document.getElementById("total-pages")) document.getElementById("total-pages").textContent = totalPaginas;
+  if(document.getElementById("prev-page")) document.getElementById("prev-page").disabled = paginaAtualClientes === 1;
+  if(document.getElementById("next-page")) document.getElementById("next-page").disabled = paginaAtualClientes === totalPaginas;
 
   lucide.createIcons();
 }
-
-prevBtn.addEventListener("click", () => {
-  if (paginaAtual > 1) {
-    paginaAtual--;
-    mostrarPagina();
-  }
-});
-
-nextBtn.addEventListener("click", () => {
-  const totalPaginas = Math.ceil(clientes.length / clientesPorPagina);
-
-  if (paginaAtual < totalPaginas) {
-    paginaAtual++;
-    mostrarPagina();
-  }
-});
 
 function abrirModalEditar(cliente) {
   document.getElementById("edit-cliente-id").value = cliente.id;
   document.getElementById("edit-nome").value = cliente.nome;
   document.getElementById("edit-email").value = cliente.email;
   document.getElementById("edit-telefone").value = cliente.telefone || "";
-
   document.getElementById("modal-editar-cliente").style.display = "flex";
-
-  lucide.createIcons();
 }
 
 function fecharModalEditar() {
   document.getElementById("modal-editar-cliente").style.display = "none";
 }
 
-function trocarPagina(id) {
-  document
-    .querySelectorAll(".tab-content")
-    .forEach((c) => c.classList.remove("active"));
+// ==========================================
+//      MÓDULO: CATEGORIAS (INTEGRADO À API)
+// ==========================================
+async function carregarCategorias() {
+  try {
+    const response = await fetch(`${API_URL}/categorias/listar`);
+    if (!response.ok) throw new Error();
+    categorias = await response.json();
+    
+    const selectCategoria = document.getElementById("evento-categoria");
+    if (!selectCategoria) return;
 
-  document
-    .querySelectorAll(".nav-link")
-    .forEach((l) => l.classList.remove("active"));
+    // Limpa opções antigas mantendo apenas o placeholder visual
+    selectCategoria.innerHTML = `
+      <option value="" disabled selected hidden>
+        Selecione uma categoria
+      </option>
+    `;
+
+    // Popula o select dinamicamente com o retorno do FastAPI
+    categorias.forEach(cat => {
+      selectCategoria.innerHTML += `<option value="${cat.id}">${cat.nome}</option>`;
+    });
+  } catch (error) {
+    console.error("Erro ao sincronizar categorias com o backend:", error);
+  }
+}
+
+// ==========================================
+//           MÓDULO: EVENTOS
+// ==========================================
+async function carregarEventos() {
+  try {
+    // Garante que temos o mapeamento de ID -> Nome na memória
+    if (categorias.length === 0) {
+      await carregarCategorias();
+    }
+
+    const response = await fetch(`${API_URL}/eventos/listar`);
+    if (!response.ok) return;
+    const eventos = await response.json();
+    const tbody = document.getElementById('tabela-eventos-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    eventos.forEach(evento => {
+      const dataFormatada = new Date(evento.data_evento).toLocaleDateString('pt-BR') + ' ' + 
+                            new Date(evento.data_evento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+
+      const tagImagem = evento.imagem 
+          ? `<img src="${evento.imagem}" alt="Promo" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">`
+          : `<div style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: var(--text-dim)">N/A</div>`;
+
+      // Encontra o nome da categoria usando o id de correlação do Evento
+      const objCategoria = categorias.find(c => c.id === evento.categoria_id);
+      const nomeCategoria = objCategoria ? objCategoria.nome : `ID: ${evento.categoria_id}`;
+
+      tbody.innerHTML += `
+          <tr>
+              <td>${tagImagem}</td>
+              <td><strong>${evento.nome}</strong></td>
+              <td><span class="status paid" style="background: rgba(255,255,255,0.05); color: var(--text-main);">${nomeCategoria}</span></td>
+              <td>${dataFormatada}</td>
+              <td>${evento.local}</td>
+              <td>R$ ${evento.valor_passagem.toFixed(2).replace('.', ',')}</td>
+              <td style="text-align: center;">
+                  <div class="actions-wrapper">
+                      <button class="btn-edit-table" onclick="prepararEdicaoEvento(${evento.id})" title="Editar">
+                          <i data-lucide="pencil" style="width: 16px;"></i>
+                      </button>
+                      <button class="btn-edit-table btn-delete-table" onclick="deletarEvento(${evento.id})" title="Excluir">
+                          <i data-lucide="trash-2" style="width: 16px;"></i>
+                      </button>
+                  </div>
+              </td>
+          </tr>
+      `;
+    });
+    lucide.createIcons();
+  } catch (error) {
+    console.error("Erro ao carregar eventos:", error);
+  }
+}
+
+async function fazerUploadImagem(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const statusLabel = document.getElementById('upload-status');
+  if (statusLabel) {
+    statusLabel.style.color = 'var(--text-dim)';
+    statusLabel.innerText = "Enviando para o Supabase...";
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch(`${API_URL}/upload/`, { method: 'POST', body: formData });
+    const resultado = await response.json();
+    
+    if (resultado.url) {
+      document.getElementById('evento-imagem-url').value = resultado.url;
+      if (statusLabel) { statusLabel.style.color = '#00ff88'; statusLabel.innerText = "Upload concluído!"; }
+    } else {
+      if (statusLabel) { statusLabel.style.color = '#ff4d4d'; statusLabel.innerText = "Falha no envio."; }
+    }
+  } catch (error) {
+    console.error("Erro no upload:", error);
+  }
+}
+
+async function prepararEdicaoEvento(id) {
+  try {
+    // Sincroniza o select antes de definir qual opção está ativa
+    await carregarCategorias();
+
+    const response = await fetch(`${API_URL}/eventos/consultar/${id}`);
+    if (!response.ok) return;
+    const evento = await response.json();
+    
+    document.getElementById('modal-evento-titulo').innerText = "Editar Evento";
+    document.getElementById('evento-id').value = evento.id;
+    document.getElementById('evento-nome').value = evento.nome;
+    document.getElementById('evento-categoria').value = evento.categoria_id;
+    if(evento.data_evento) document.getElementById('evento-data').value = evento.data_evento.substring(0, 16);
+    document.getElementById('evento-local').value = evento.local;
+    document.getElementById('evento-valor').value = evento.valor_passagem;
+    document.getElementById('evento-imagem-url').value = evento.imagem || '';
+    
+    document.getElementById('modal-evento').style.display = 'flex';
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function deletarEvento(id) {
+  if (!confirm("Remover este evento de forma permanente?")) return;
+  try {
+    const response = await fetch(`${API_URL}/eventos/deletar/${id}`, { method: 'DELETE' });
+    if (response.ok) carregarEventos();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function abrirModalEvento() {
+  document.getElementById('form-evento').reset();
+  document.getElementById('evento-id').value = '';
+  document.getElementById('evento-imagem-url').value = '';
+  if(document.getElementById('upload-status')) document.getElementById('upload-status').innerText = '';
+  
+  // Atualiza as opções vinda do banco de dados ao abrir a criação
+  await carregarCategorias();
+
+  document.getElementById('modal-evento-titulo').innerText = "Cadastrar Evento";
+  document.getElementById('modal-evento').style.display = 'flex';
+}
+
+function fecharModalEvento() { document.getElementById('modal-evento').style.display = 'none'; }
+
+// ==========================================
+//           MÓDULO: PEDIDOS
+// ==========================================
+async function carregarPedidos() {
+  try {
+    const response = await fetch(`${API_URL}/pedidos/listar`);
+    if (!response.ok) throw new Error();
+    pedidos = await response.json();
+    paginaAtualPedidos = 1;
+    mostrarPaginaPedidos();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function mostrarPaginaPedidos() {
+  const tabela = document.getElementById("tabela-pedidos-body");
+  if (!tabela) return;
+  tabela.innerHTML = "";
+
+  const inicio = (paginaAtualPedidos - 1) * pedidosPorPagina;
+  const fim = inicio + pedidosPorPagina;
+  const pedidosPagina = pedidos.slice(inicio, fim);
+
+  pedidosPagina.forEach((pedido) => {
+    const dataVenda = pedido.data_venda ? new Date(pedido.data_venda).toLocaleDateString("pt-BR") : "---";
+    tabela.innerHTML += `
+      <tr>
+        <td>#${pedido.id}</td>
+        <td>ID: ${pedido.cliente_id}</td>
+        <td>ID: ${pedido.evento_id}</td>
+        <td>${dataVenda}</td>
+        <td><span class="status paid">${pedido.status || "Pago"}</span></td>
+        <td>R$ ${parseFloat(pedido.valor).toFixed(2).replace('.', ',')}</td>
+        <td style="text-align: center;">
+           <button class="btn-edit-table" onclick="alert('Pedido ID: ' + ${pedido.id})" title="Visualizar">
+             <i data-lucide="eye" style="width: 16px;"></i>
+           </button>
+        </td>
+      </tr>
+    `;
+  });
+
+  const totalPaginas = Math.ceil(pedidos.length / pedidosPorPagina) || 1;
+  if(document.getElementById("current-page-pedidos")) document.getElementById("current-page-pedidos").textContent = paginaAtualPedidos;
+  if(document.getElementById("total-pages-pedidos")) document.getElementById("total-pages-pedidos").textContent = totalPaginas;
+  if(document.getElementById("prev-page-pedidos")) document.getElementById("prev-page-pedidos").disabled = paginaAtualPedidos === 1;
+  if(document.getElementById("next-page-pedidos")) document.getElementById("next-page-pedidos").disabled = paginaAtualPedidos === totalPaginas;
+
+  lucide.createIcons();
+}
+
+// ==========================================
+//    MÓDULO: NAVEGAÇÃO E GLOBAL (TEMAS)
+// ==========================================
+function trocarPagina(id) {
+  document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
+  document.querySelectorAll(".nav-link").forEach((l) => l.classList.remove("active"));
 
   const tab = document.getElementById("content-" + id);
   const link = document.getElementById("link-" + id);
@@ -215,7 +453,10 @@ function trocarPagina(id) {
   if (tab) tab.classList.add("active");
   if (link) link.classList.add("active");
 
+  // Gatilhos sob demanda
   if (id === "clientes") carregarClientes();
+  if (id === "pedidos") carregarPedidos();
+  if (id === "eventos") carregarEventos();
 }
 
 function aplicarTema(theme) {
@@ -234,17 +475,4 @@ function aplicarTema(theme) {
   }
 
   lucide.createIcons();
-}
-
-const themeBtn = document.getElementById("theme-toggle");
-
-if (themeBtn) {
-  themeBtn.addEventListener("click", () => {
-    const novoTema = document.body.classList.contains("light-mode")
-      ? "dark"
-      : "light";
-
-    localStorage.setItem("theme", novoTema);
-    aplicarTema(novoTema);
-  });
 }

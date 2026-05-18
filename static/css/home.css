@@ -130,7 +130,6 @@ body {
         opacity: 0;
         transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -216,7 +215,7 @@ td {
     background: var(--glass);
     padding: 15px 20px;
     color: var(--text-main);
-    font-size: 0.9rem;
+    font-size: 0.9rm;
     vertical-align: middle;
 }
 
@@ -230,20 +229,17 @@ td:last-child {
     width: 100px;
 }
 
-/* --- ESTILIZAÇÃO DO BOTÃO DO LÁPIS (EDITAR) --- */
+/* --- BOTÕES DA TABELA --- */
 .btn-edit-client,
 .btn-edit-event,
 .btn-edit-table {
     background: var(--glass) !important;
-    /* Fundo semi-transparente no repouso */
     color: var(--primary) !important;
-    /* Lápis vermelho no repouso */
     border: 1.5px solid var(--border);
     width: 38px;
     height: 38px;
     min-width: 38px;
     border-radius: 12px !important;
-    /* Força o arredondado */
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -252,7 +248,6 @@ td:last-child {
     overflow: hidden;
 }
 
-/* Garante que o ícone interno seja centralizado e herde a cor */
 .btn-edit-client svg,
 .btn-edit-event svg,
 .btn-edit-table svg,
@@ -262,22 +257,34 @@ td:last-child {
     width: 18px !important;
     height: 18px !important;
     stroke: currentColor !important;
-    /* Força o lápis a usar a cor do texto do botão */
     stroke-width: 2.5px;
     display: block;
 }
 
-/* Efeito Hover */
 .btn-edit-client:hover,
 .btn-edit-event:hover,
 .btn-edit-table:hover {
     background: var(--primary) !important;
-    /* Fundo fica vermelho */
     color: #ffffff !important;
-    /* Lápis fica branco */
     border-color: var(--primary);
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+}
+
+.actions-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; 
+}
+
+.btn-delete-table {
+    color: #ff4d4d !important;
+}
+
+.btn-delete-table:hover {
+    background-color: rgba(255, 77, 77, 0.15);
+    border-color: rgba(255, 77, 77, 0.3);
 }
 
 /* --- STATUS E BOTÕES GERAIS --- */
@@ -324,7 +331,7 @@ td:last-child {
     transform: translateY(-2px);
 }
 
-/* --- MODAL DE EDIÇÃO --- */
+/* --- MODAL PADRÃO --- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -417,7 +424,7 @@ td:last-child {
     cursor: pointer;
 }
 
-/* Container da Paginação */
+/* --- PAGINAÇÃO --- */
 .pagination-container {
     display: flex;
     align-items: center;
@@ -428,7 +435,6 @@ td:last-child {
     border-top: 1px solid var(--border);
 }
 
-/* Botões de Seta */
 .pagination-btn {
     background: var(--glass);
     border: 1px solid var(--border);
@@ -456,7 +462,6 @@ td:last-child {
     height: 20px;
 }
 
-/* Informação da Página (X de Y) */
 .pagination-info {
     display: flex;
     align-items: center;
@@ -484,4 +489,159 @@ td:last-child {
 
 .total-pages {
     color: var(--text-main);
+}
+
+/* --- FORMULÁRIO DE NOVO EVENTO --- */
+#modal-evento .modal-content {
+    background: #0d0d0d;
+    border-radius: 16px;
+    padding: 35px 24px;
+    max-width: 460px;
+    width: 95%;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+#modal-evento .modal-header h2 {
+    color: #ffffff;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.form-group-custom {
+    position: relative;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.form-group-custom input[type="text"],
+.form-group-custom input[type="number"],
+.form-group-custom input[type="datetime-local"],
+.form-group-custom select {
+    width: 100%;
+    background-color: #141414;
+    border: 1px solid #222222;
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 16px 16px 16px 48px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-group-custom input::placeholder {
+    color: #555555;
+}
+
+.form-group-custom .input-icon {
+    position: absolute;
+    left: 16px;
+    color: #777777;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
+.form-group-custom input:focus,
+.form-group-custom select:focus {
+    border-color: rgba(255, 255, 255, 0.15);
+    background-color: #181818;
+}
+
+.select-highlight select {
+    border: 1.5px solid #b30000 !important;
+}
+
+.select-highlight .floating-label {
+    position: absolute;
+    top: -9px;
+    left: 14px;
+    background-color: #0d0d0d;
+    padding: 0 6px;
+    color: #888888;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.select-highlight select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+}
+
+.file-group input[type="file"] {
+    padding: 14px 16px 14px 48px;
+    color: #666666;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.modal-actions-custom {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.btn-save-custom {
+    width: 100%;
+    background-color: #b30000;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-save-custom:hover {
+    background-color: #e60000;
+}
+
+.btn-cancel-custom {
+    width: 100%;
+    background: transparent;
+    color: #666666;
+    border: none;
+    padding: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: color 0.2s ease;
+}
+
+.btn-cancel-custom:hover {
+    color: #ffffff;
+}
+
+/* --- LIGHT MODE ADAPTAÇÕES --- */
+body.light-mode #modal-evento .modal-content {
+    background: #ffffff;
+    border: 1px solid var(--border);
+}
+body.light-mode .form-group-custom input[type="text"],
+body.light-mode .form-group-custom input[type="number"],
+body.light-mode .form-group-custom input[type="datetime-local"],
+body.light-mode .form-group-custom select {
+    background-color: #f5f5f7;
+    border: 1px solid #dddddd;
+    color: #1a1a1a;
+}
+body.light-mode .select-highlight .floating-label {
+    background-color: #ffffff;
+}
+body.light-mode .btn-cancel-custom {
+    color: #888888;
+}
+body.light-mode .btn-cancel-custom:hover {
+    color: #000000;
 }
