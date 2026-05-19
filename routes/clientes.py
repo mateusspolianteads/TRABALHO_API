@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, Query
 from database import SessionLocal
 import pandas as pd
 from io import BytesIO
@@ -161,34 +161,26 @@ async def importar_planilha(
 def listar_clientes_evento(
     evento_id: int,
     pagina: int = 1,
-    limite: int = 10
+    limite: int = 10,
+    search: str = None
 ):
-
     db = SessionLocal()
 
     try:
+        query = db.query(Cliente).filter(Cliente.evento_id == evento_id)
 
-        offset = (pagina - 1) * limite
+        if search:
+            query = query.filter(
+                Cliente.nome.ilike(f"{search}%")
+            )
 
-        clientes = (
-            db.query(Cliente)
-            .filter(Cliente.evento_id == evento_id)
-            .offset(offset)
-            .limit(limite)
-            .all()
-        )
+        total = query.count()
 
-        total = (
-            db.query(Cliente)
-            .filter(Cliente.evento_id == evento_id)
-            .count()
-        )
+        clientes = query.offset((pagina - 1) * limite).limit(limite).all()
 
         return {
             "clientes": clientes,
-            "total": total,
-            "pagina": pagina,
-            "limite": limite
+            "total": total
         }
 
     finally:
