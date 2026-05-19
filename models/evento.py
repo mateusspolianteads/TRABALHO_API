@@ -11,9 +11,6 @@ class Evento(Base):
     categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
 
     data_evento = Column(DateTime, nullable=False)
-
     local = Column(String, nullable=False)
-
     valor_passagem = Column(Float, nullable=False)
-
     imagem = Column(String, nullable=True)

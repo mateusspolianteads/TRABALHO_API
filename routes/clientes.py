@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Form
 from database import SessionLocal
 import pandas as pd
 from io import BytesIO
@@ -51,7 +51,10 @@ def atualizar(id: int, cliente: ClienteUpdate):
     "/importar-planilha",
     status_code=201
 )
-async def importar_planilha(file: UploadFile = File(...)):
+async def importar_planilha(
+    evento_id: int = Form(...),
+    file: UploadFile = File(...)
+    ):
 
     db = SessionLocal()
 
@@ -118,7 +121,8 @@ async def importar_planilha(file: UploadFile = File(...)):
                         row.get("data_de_nascimento")
                     )
                     else None
-                )
+                ),
+                evento_id=evento_id
             )
 
             db.add(cliente)
@@ -148,6 +152,43 @@ async def importar_planilha(file: UploadFile = File(...)):
 
             "clientes_duplicados":
                 clientes_duplicados
+        }
+
+    finally:
+        db.close()
+
+@router.get("/evento/{evento_id}")
+def listar_clientes_evento(
+    evento_id: int,
+    pagina: int = 1,
+    limite: int = 10
+):
+
+    db = SessionLocal()
+
+    try:
+
+        offset = (pagina - 1) * limite
+
+        clientes = (
+            db.query(Cliente)
+            .filter(Cliente.evento_id == evento_id)
+            .offset(offset)
+            .limit(limite)
+            .all()
+        )
+
+        total = (
+            db.query(Cliente)
+            .filter(Cliente.evento_id == evento_id)
+            .count()
+        )
+
+        return {
+            "clientes": clientes,
+            "total": total,
+            "pagina": pagina,
+            "limite": limite
         }
 
     finally:
