@@ -1,6 +1,9 @@
 from fastapi import HTTPException
 from models.usuario import Usuario
+from validate_docbr import CPF, CNPJ
 
+cpf_validator = CPF()
+cnpj_validator = CNPJ()
 
 def criar_usuario(db, dados):
 
@@ -8,6 +11,17 @@ def criar_usuario(db, dados):
 
     if email_existente:
         raise HTTPException(status_code=400, detail="Email já cadastrado")
+
+    cpf_cnpj = str(dados.cpf_cnpj).strip()
+
+    is_cpf_valido = cpf_validator.validate(cpf_cnpj)
+    is_cnpj_valido = cnpj_validator.validate(cpf_cnpj)
+
+    if not (is_cpf_valido or is_cnpj_valido):
+        raise HTTPException(
+            status_code=400,
+            detail="CPF/CNPJ inválido"
+        )
 
     cpf_existente = db.query(Usuario).filter(Usuario.cpf_cnpj == dados.cpf_cnpj).first()
 
